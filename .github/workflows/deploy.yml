@@ -1,0 +1,52 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main  # Change to 'master' if that's your default branch
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # Only run on merged PRs or direct pushes to main
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Sync files to S3
+        run: |
+          aws s3 sync . s3://kailinx.com \
+            --exclude ".git/*" \
+            --exclude "*.md" \
+            --exclude "LICENSE" \
+            --exclude ".DS_Store" \
+            --exclude ".github/*" \
+            --exclude "*.json" \
+            --delete
+      
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ECXWCABXID92G \
+            --paths "/*"
+      
+      - name: Deployment summary
+        run: |
+          echo "✅ Files synced to S3"
+          echo "✅ CloudFront cache invalidated"
+          echo "🎉 Deployment complete!"
+          echo "Your website will be updated in a few minutes."
