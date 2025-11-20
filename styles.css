@@ -539,12 +539,134 @@ footer {
         display: block;
     }
 
+    .navbar {
+        padding: 1rem 1.5rem;
+    }
+
+    .logo {
+        font-size: 1.3rem;
+    }
+
     .hero-content h1 {
         font-size: 2.5rem;
     }
 
+    .typing-container {
+        font-size: 1.2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-cta {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .btn {
+        padding: 0.7rem 1.5rem;
+        width: 100%;
+    }
+
     .section {
-        padding: 4rem 1rem;
+        padding: 4rem 1.5rem;
+        min-height: auto;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .glass-card {
+        padding: 1.5rem;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mobile-nav a {
+        font-size: 1.3rem;
+    }
+
+    .contact-item {
+        font-size: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .social-links a {
+        font-size: 1.3rem;
+    }
+
+    .timeline-content h3 {
+        font-size: 1.1rem;
+    }
+
+    .timeline-content h4 {
+        font-size: 0.95rem;
+    }
+
+    .project-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .modal-content {
+        width: 98%;
+        height: 95vh;
+        padding: 0.5rem;
+    }
+
+    .close-modal {
+        font-size: 1.5rem;
+        top: 0.5rem;
+        right: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .typing-container {
+        font-size: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .section {
+        padding: 3rem 1rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .glass-card {
+        padding: 1.25rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    .skill-category {
+        font-size: 0.85rem;
+    }
+
+    .tech-stack span {
+        font-size: 0.75rem;
+    }
+
+    .contact-item {
+        font-size: 0.95rem;
     }
 }
 
