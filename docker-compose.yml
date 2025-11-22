@@ -1,0 +1,22 @@
+services:
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - portfolio
+    restart: always
+    networks:
+      - app-network
+
+  portfolio:
+    image: ${IMAGE_NAME}
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

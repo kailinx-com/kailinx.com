@@ -58,19 +58,78 @@ jobs:
             # Login to GHCR
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Pull the new image
-            docker pull ghcr.io/${{ github.repository }}:latest
+            # Create app directory if it doesn't exist
+            mkdir -p ~/app/nginx/conf.d
             
-            # Stop and remove existing container
+            # Define Image Name
+            export IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
+            
+            # Pull the new image
+            docker pull $IMAGE_NAME
+            
+            # We need to copy the docker-compose.yml and nginx config to the server
+            # Since we can't easily use scp in this script block without setting up keys again,
+            # we will create the files directly on the server using echo/cat.
+            # NOTE: For a production setup, using 'scp-action' or rsync is better, but this is robust for single files.
+            
+            # Write docker-compose.yml
+            cat <<EOF > ~/app/docker-compose.yml
+            services:
+              proxy:
+                image: nginx:alpine
+                ports:
+                  - "80:80"
+                volumes:
+                  - ./nginx/conf.d:/etc/nginx/conf.d
+                depends_on:
+                  - portfolio
+                restart: always
+                networks:
+                  - app-network
+
+              portfolio:
+                image: $IMAGE_NAME
+                restart: always
+                networks:
+                  - app-network
+
+            networks:
+              app-network:
+                driver: bridge
+            EOF
+            
+            # Write Nginx Config
+            cat <<EOF > ~/app/nginx/conf.d/default.conf
+            server {
+                listen 80;
+                server_name kailinx.com www.kailinx.com;
+
+                location / {
+                    proxy_pass http://portfolio:80;
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                }
+            }
+            
+            server {
+                listen 80 default_server;
+                server_name _;
+                return 444;
+            }
+            EOF
+            
+            # Navigate to app directory
+            cd ~/app
+            
+            # Stop and remove old standalone container if it exists
             docker stop kailinx-site || true
             docker rm kailinx-site || true
             
-            # Run new container
-            docker run -d \
-              --name kailinx-site \
-              --restart unless-stopped \
-              -p 80:80 \
-              ghcr.io/${{ github.repository }}:latest
-              
+            # Start Docker Compose
+            # Pass the IMAGE_NAME env var to docker compose
+            IMAGE_NAME=$IMAGE_NAME docker compose up -d --remove-orphans
+            
             # Cleanup unused images
             docker image prune -f
