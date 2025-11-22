@@ -31,6 +31,7 @@
         "description": "Shipped a fullstack computer vision Edge Detection platform with 100+ monthly users and 99% uptime. Parallelized 5+ image kernels for 3x CPU speedups using C++, OpenMP, and factory polymorphism. Deployed containerized services on AWS ECS.",
         "techStack": ["C++", "OpenMP", "AWS ECS", "React", "Next.js"],
         "links": [
+            { "type": "external-link", "url": "https://edgedetectr.kailinx.com/" },
             { "type": "github", "url": "https://github.com/EdgeDetectr" }
         ]
     },
