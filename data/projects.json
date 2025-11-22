@@ -1,0 +1,107 @@
+[
+    {
+        "title": "International Student Data Platform",
+        "date": "Aug 2025 - Present",
+        "description": "Architected analytics platform reducing time-to-insight 40%. Improved search relevance for 400K+ employers via Meilisearch tuning and Redis caching. Reduced p95 latency 60% with Node.js and Apollo GraphQL optimizations. Automated CI with Jest, Playwright, GitHub Actions.",
+        "techStack": ["Express.js", "GraphQL", "Prisma", "PostgreSQL", "Redis", "Docker", "AWS"],
+        "links": [
+            { "type": "github", "url": "https://github.com/nuvia-fyi" }
+        ]
+    },
+    {
+        "title": "HPCMLX",
+        "date": "2024 - Present",
+        "description": "High-Performance Computing and Machine Learning platform. Research and development focused on accelerated computing workflows and ML optimization.",
+        "techStack": ["HPC", "Machine Learning", "Python", "CUDA"],
+        "links": [
+            { "type": "external-link", "url": "https://hpcmlx.kailinx.com" },
+            { "type": "github", "url": "https://github.com/HPCMLX/hpcmlx" }
+        ]
+    },
+    {
+        "title": "Baseball Game Management Dashboard",
+        "date": "Jul 2025 - Sep 2025",
+        "description": "Shipped production releases serving 300+ users. Structured modular backend with Django MTV. Implemented real-time ingestion using Celery, Redis, and PostgreSQL. Maintained zero downtime on GCP with Kubernetes.",
+        "techStack": ["Django", "Vue.js", "Celery", "Redis", "Kubernetes", "GCP"],
+        "links": []
+    },
+    {
+        "title": "EdgeDetectr",
+        "date": "Dec 2024 - Mar 2025",
+        "description": "Shipped a fullstack computer vision Edge Detection platform with 100+ monthly users and 99% uptime. Parallelized 5+ image kernels for 3x CPU speedups using C++, OpenMP, and factory polymorphism. Deployed containerized services on AWS ECS.",
+        "techStack": ["C++", "OpenMP", "AWS ECS", "React", "Next.js"],
+        "links": [
+            { "type": "github", "url": "https://github.com/EdgeDetectr" }
+        ]
+    },
+    {
+        "title": "Three Trios",
+        "date": "Fall 2024",
+        "description": "Strategy-Based Modular Card Game. Implemented using MVC design pattern with \"max card flip\" algorithms. Achieved 100% test coverage with JUnit.",
+        "techStack": ["Java", "Swing", "MVC"],
+        "links": []
+    },
+    {
+        "title": "Spotify UnWrapped",
+        "date": "Dec 2023",
+        "description": "Content-Based Recommendation System. Classified 1,000+ songs using Perceptron algorithm. Real-time visualizations with Plotly.",
+        "techStack": ["Python", "Streamlit", "ML"],
+        "links": [
+            { "type": "github", "url": "https://github.com/kailinxGitHub/Spotify-UnWrapped-Spotify-Content-Based-Recommendation-System-and-Data-Visualization" }
+        ]
+    },
+    {
+        "title": "AdvisorU",
+        "date": "Spring 2024",
+        "description": "College Academic Advisor AI Agent. Integrated RAG with Pinecone and LangChain to query 120+ courses.",
+        "techStack": ["Python", "RAG", "LangChain"],
+        "links": [
+            { "type": "github", "url": "https://github.com/AdvisorU" }
+        ]
+    },
+    {
+        "title": "LinkedIn Post Generator",
+        "date": "2023",
+        "description": "Accelerated post creation by 60% with a ChatGPT-powered Streamlit app.",
+        "techStack": ["Python", "OpenAI", "Streamlit"],
+        "links": [
+            { "type": "github", "url": "https://github.com/kailinxGitHub/linkedinPostGenerator" }
+        ]
+    },
+    {
+        "title": "MyVisaJobs Crawler",
+        "date": "2023",
+        "description": "Developed a Python web crawler to extract and analyze university Visa data.",
+        "techStack": ["Python", "Crawling"],
+        "links": [
+            { "type": "github", "url": "https://github.com/kailinxGitHub/MyVisaJobs_2023_Crawler" }
+        ]
+    },
+    {
+        "title": "SmarterTomorrow",
+        "date": "2022",
+        "description": "Company-Specific Twitter Data Analysis Tool. Increased algorithmic efficiency by 20% with real-time tweet filtering.",
+        "techStack": ["Python", "TensorFlow", "Scikit-Learn"],
+        "links": [
+            { "type": "github", "url": "https://github.com/kailinxGitHub/SmarterTomorrow" }
+        ]
+    },
+    {
+        "title": "Matrix-Multiplication-OpenMP",
+        "date": "2024",
+        "description": "High-performance matrix multiplication implementation using OpenMP for parallel processing. Demonstrates optimization techniques for multi-core architectures.",
+        "techStack": ["C", "OpenMP", "HPC"],
+        "links": [
+            { "type": "github", "url": "https://github.com/kailinxGitHub/Matrix-Multiplication-OpenMP" }
+        ]
+    },
+    {
+        "title": "Y-Combinator Data Viz",
+        "date": "2022",
+        "description": "Data analysis and visualization of Y Combinator startup data. Explores trends in successful startups using statistical analysis.",
+        "techStack": ["Python", "Jupyter", "Pandas", "Matplotlib"],
+        "links": [
+            { "type": "github", "url": "https://github.com/kailinxGitHub/Y-Combinator-Data-Visualization" }
+        ]
+    }
+]

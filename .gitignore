@@ -6,6 +6,7 @@
 # AWS temporary configuration files (from deployment)
 *.json
 !package*.json
+!data/*.json
 
 # Editor files
 .vscode/

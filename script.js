@@ -95,4 +95,106 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // Data Fetching and Rendering
+    const loadData = async () => {
+        try {
+            await Promise.all([
+                loadExperience(),
+                loadEducation(),
+                loadProjects()
+            ]);
+            // Re-initialize icons after dynamic content is loaded
+            lucide.createIcons();
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    };
+
+    const loadExperience = async () => {
+        const container = document.querySelector('#experience .timeline');
+        if (!container) return;
+
+        try {
+            const response = await fetch('data/experience.json');
+            const data = await response.json();
+
+            container.innerHTML = data.map(item => `
+                <div class="timeline-item glass-card">
+                    <div class="timeline-date">${item.date}</div>
+                    <div class="timeline-content">
+                        <h3>${item.role}</h3>
+                        <h4>${item.company}</h4>
+                        <p>${item.description}</p>
+                        ${item.techStack && item.techStack.length > 0 ? `
+                        <div class="tech-stack">
+                            ${item.techStack.map(tech => `<span>${tech}</span>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading experience:', error);
+        }
+    };
+
+    const loadEducation = async () => {
+        const container = document.querySelector('#education .timeline');
+        if (!container) return;
+
+        try {
+            const response = await fetch('data/education.json');
+            const data = await response.json();
+
+            container.innerHTML = data.map(item => `
+                <div class="timeline-item glass-card">
+                    <div class="timeline-date">${item.date}</div>
+                    <div class="timeline-content">
+                        <h3>${item.school}</h3>
+                        ${item.degree ? `<h4>${item.degree.replace(/\n/g, '<br>')}</h4>` : ''}
+                        <p>${item.description.replace(/\n/g, '<br>')}</p>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading education:', error);
+        }
+    };
+
+    const loadProjects = async () => {
+        const container = document.querySelector('.projects-grid');
+        if (!container) return;
+
+        try {
+            const response = await fetch('data/projects.json');
+            const data = await response.json();
+
+            container.innerHTML = data.map(item => `
+                <div class="project-card glass-card">
+                    <div class="project-header">
+                        <div>
+                            <h3>${item.title}</h3>
+                            <div class="project-date">${item.date}</div>
+                        </div>
+                        <div class="project-links">
+                            ${item.links.map(link => `
+                                <a href="${link.url}" target="_blank" aria-label="${link.type === 'github' ? 'Code' : 'Website'}">
+                                    <i data-lucide="${link.type}"></i>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <p>${item.description}</p>
+                    <div class="tech-stack">
+                        ${item.techStack.map(tech => `<span>${tech}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading projects:', error);
+        }
+    };
+
+    loadData();
 });

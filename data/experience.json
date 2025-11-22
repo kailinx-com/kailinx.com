@@ -1,0 +1,86 @@
+[
+    {
+        "role": "Software Engineer Co-op",
+        "company": "Boston Red Sox",
+        "date": "Jul 2025 - Present",
+        "description": "Spearheaded the development of a full-stack web application using Django’s MTV architecture. Implemented Celery-based asynchronous jobs for real-time data ingestion. Architected and deployed a scalable, containerized application on GCP using Docker, Kubernetes, and Terraform.",
+        "techStack": ["Django", "React.js", "Vue.js", "PostgreSQL", "Celery", "Redis", "Bootstrap", "Google Cloud Platform (GCP)", "Tailwind CSS"]
+    },
+    {
+        "role": "Software Engineer / Research Assistant",
+        "company": "Northeastern University Computer Architecture Research Lab",
+        "date": "May 2024 - Present",
+        "description": "Optimized CUDA-accelerated edge detection in C/C++ using OpenMP, pthreads, and OpenCV, improving processing speed by 200%. Researched PyTorch performance on HPC servers, training MNIST and language models.",
+        "techStack": ["PyTorch", "C++", "OpenMPI", "CUDA", "Express.js", "React.js", "C", "OpenMP", "Linux", "Parallel Programming", "High Performance Computing"]
+    },
+    {
+        "role": "Data Engineer / Research Assistant",
+        "company": "Northeastern University Lokey School",
+        "date": "Jun 2024 - Feb 2025",
+        "description": "Engineered a scalable ETL pipeline in Python leveraging Selenium and Scrapy to scrape 350K+ articles. Architected and maintained a MySQL database schema, reducing query latency by 30%.",
+        "techStack": ["Python", "Selenium", "MySQL", "Pandas", "ETL", "Beautiful Soup", "NLTK", "SQL"]
+    },
+    {
+        "role": "Software Engineer",
+        "company": "iKALA (Haikou, China)",
+        "date": "Apr 2023 - Jun 2023",
+        "description": "Delivered a prototype of a WeChat Mini Program with secure payment gateway integrations. Implemented \"virtual fitting room\" features within the app.",
+        "techStack": ["WeChat Mini Program", "Payment Gateways"]
+    },
+    {
+        "role": "Founder & CTO",
+        "company": "Dawka Daily (Warsaw, Poland)",
+        "date": "Aug 2021 - May 2023",
+        "description": "Implemented and launched a gazette publishing website. Maintained the WordPress backend ensuring 100% uptime.",
+        "techStack": ["WordPress", "PHP", "Web Management"]
+    },
+    {
+        "role": "AI Scholar",
+        "company": "Inspirit AI",
+        "date": "Jun 2022 - Jul 2022",
+        "description": "Built financial machine learning models using TensorFlow and PyTorch. Analyzed tweets sentiment using NLTK.",
+        "techStack": ["Python", "TensorFlow", "PyTorch", "NLTK"]
+    },
+    {
+        "role": "Data Analyst/Project Manager Intern",
+        "company": "GlobalShala & Illinois Institute of Technology",
+        "date": "Nov 2021 - Dec 2021",
+        "description": "Spearheaded a cross-functional data analysis team, resulting in a 15% increase in click-through rate.",
+        "techStack": []
+    },
+    {
+        "role": "Livestream Specialist/Photographer",
+        "company": "American School of Warsaw - ASW Media Club",
+        "date": "Aug 2021 - Apr 2023",
+        "description": "Warsaw, Poland.",
+        "techStack": []
+    },
+    {
+        "role": "Co-Publicist",
+        "company": "American School of Warsaw - Executive Student Council",
+        "date": "Aug 2020 - Jul 2022",
+        "description": "Warsaw, Poland.",
+        "techStack": []
+    },
+    {
+        "role": "Broadcast Coordinator & Founder",
+        "company": "American School of Warsaw - Bulletin Brief Broadcast",
+        "date": "Nov 2021 - Jun 2022",
+        "description": "Coordinated media club members, gathered information, and communicated with production members.",
+        "techStack": []
+    },
+    {
+        "role": "Dropshipper",
+        "company": "Shopify",
+        "date": "Oct 2019 - Jun 2020",
+        "description": "Conducted market research, managed suppliers, and optimized store for conversions.",
+        "techStack": []
+    },
+    {
+        "role": "Amazon FBA Merchant",
+        "company": "Amazon",
+        "date": "Dec 2017 - Oct 2018",
+        "description": "Specialized in custom iPhone cases. Managed product sourcing, inventory, and pricing strategy.",
+        "techStack": []
+    }
+]
