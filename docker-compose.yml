@@ -1,6 +1,7 @@
 services:
   proxy:
     image: nginx:alpine
+    container_name: kailinx-gateway
     ports:
       - "80:80"
       - "443:443"
@@ -15,6 +16,7 @@ services:
 
   portfolio:
     image: ${IMAGE_NAME}
+    container_name: kailinx-com
     restart: always
     networks:
       - app-network
