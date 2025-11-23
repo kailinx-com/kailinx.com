@@ -15,7 +15,8 @@ services:
       - app-network
 
   portfolio:
-    image: ${IMAGE_NAME}
+    build: .
+    image: kailinx-portfolio:latest
     container_name: kailinx-com
     restart: always
     networks:
