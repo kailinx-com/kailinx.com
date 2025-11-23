@@ -15,7 +15,7 @@
         "techStack": ["HPC", "Machine Learning", "Python", "CUDA"],
         "links": [
             { "type": "external-link", "url": "https://hpcmlx.kailinx.com" },
-            { "type": "github", "url": "https://github.com/HPCMLX/hpcmlx" }
+            { "type": "github", "url": "https://github.com/kailinx-com/hpcmlx" }
         ]
     },
     {
@@ -32,7 +32,7 @@
         "techStack": ["C++", "OpenMP", "AWS ECS", "React", "Next.js"],
         "links": [
             { "type": "external-link", "url": "https://edgedetectr.kailinx.com/" },
-            { "type": "github", "url": "https://github.com/EdgeDetectr" }
+            { "type": "github", "url": "https://github.com/kailinx-com/EdgeDetectr" }
         ]
     },
     {
