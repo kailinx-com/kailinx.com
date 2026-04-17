@@ -131,9 +131,6 @@ jobs:
             
             cd ~/app
             
-            docker stop kailinx-site || true
-            docker rm kailinx-site || true
-            
-            IMAGE_NAME=$IMAGE_NAME docker compose up -d --remove-orphans
+            IMAGE_NAME=$IMAGE_NAME docker compose up -d --remove-orphans --force-recreate
             
             docker image prune -f
