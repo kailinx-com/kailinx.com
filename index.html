@@ -4,17 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kailin Xing | Software Engineer</title>
-    <meta name="description" content="Professional portfolio of Kailin Xing, Software Engineer specializing in C++, CUDA, and Full Stack Development.">
+    <meta name="description" content="Portfolio of Kailin Xing — full-stack and systems software engineer; incoming NVIDIA intern; experience at Boston Red Sox and Northeastern Computer Architecture Research Lab.">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=202602">
     
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -24,6 +21,7 @@
         <div class="logo">KX</div>
         <div class="nav-links">
             <a href="#about">About</a>
+            <a href="#nvidia">NVIDIA</a>
             <a href="#experience">Experience</a>
             <a href="#education">Education</a>
             <a href="#projects">Projects</a>
@@ -36,6 +34,7 @@
 
     <div class="mobile-nav">
         <a href="#about">About</a>
+        <a href="#nvidia">NVIDIA</a>
         <a href="#experience">Experience</a>
         <a href="#education">Education</a>
         <a href="#projects">Projects</a>
@@ -49,7 +48,7 @@
                 <div class="typing-container">
                     <span id="typing-text"></span><span class="cursor">|</span>
                 </div>
-                <p class="hero-subtitle">Building the future with code.</p>
+                <p class="hero-subtitle">Incoming Software Engineering Intern <strong>@ NVIDIA</strong> (Web Applications) · Full-stack &amp; systems</p>
                 <div class="hero-cta">
                     <a href="#experience" class="btn primary-btn">View Experience</a>
                     <a href="#contact" class="btn secondary-btn">Contact Me</a>
@@ -62,30 +61,42 @@
             </div>
         </section>
 
+        <section id="nvidia" class="section next-role-section" aria-label="NVIDIA internship">
+            <div class="container">
+                <div class="next-role-card glass-card">
+                    <span class="incoming-badge">Incoming</span>
+                    <h2 class="next-role-title">NVIDIA · Software Engineering Intern, Web Applications</h2>
+                    <p class="next-role-meta">Santa Clara, California · May 2026 – Sep 2026</p>
+                    <p class="next-role-summary">
+                        Chip-development workflow tooling with Java, Vue.js, and SQL; backend APIs and microservices with
+                        Java, Spring Boot, and MongoDB; responsive UI with performance profiling; Docker, Kubernetes, and ELK
+                        for operations and observability.
+                    </p>
+                    <a href="#experience" class="btn primary-btn">Full write-up in Experience</a>
+                </div>
+            </div>
+        </section>
+
         <section id="featured" class="featured-section section">
             <div class="container">
                 <h2 class="section-title">Featured Projects</h2>
                 <div class="featured-grid">
                     <div class="featured-card glass-card">
-                        <div class="featured-badge">Research</div>
-                        <h3>HPCMLX</h3>
-                        <p class="featured-date">2024 - Present</p>
+                        <div class="featured-badge">Full Stack</div>
+                        <h3>International Student Data Platform</h3>
+                        <p class="featured-date">Aug 2025 – Present</p>
                         <p class="featured-description">
-                            High-Performance Computing and Machine Learning platform. Research and development 
-                            focused on accelerated computing workflows and ML optimization. Cutting-edge work in 
-                            computational performance and machine learning integration.
+                            Analytics platform with Express.js (Apollo GraphQL), Prisma, and PostgreSQL — faster insights,
+                            Meilisearch + Redis at scale, and CI with Jest, Playwright, and GitHub Actions.
                         </p>
                         <div class="tech-stack">
-                            <span>HPC</span>
-                            <span>Machine Learning</span>
-                            <span>Python</span>
-                            <span>CUDA</span>
+                            <span>GraphQL</span>
+                            <span>Node.js</span>
+                            <span>PostgreSQL</span>
+                            <span>AWS</span>
                         </div>
                         <div class="featured-links">
-                            <a href="https://hpcmlx.kailinx.com" target="_blank" class="btn primary-btn">
-                                <i data-lucide="external-link"></i> Visit Live
-                            </a>
-                            <a href="https://github.com/kailinx-com/hpcmlx" target="_blank" class="btn secondary-btn">
+                            <a href="https://github.com/nuvia-fyi" target="_blank" class="btn primary-btn">
                                 <i data-lucide="github"></i> GitHub
                             </a>
                         </div>
@@ -93,11 +104,10 @@
                     <div class="featured-card glass-card">
                         <div class="featured-badge">Live Project</div>
                         <h3>EdgeDetectr</h3>
-                        <p class="featured-date">Dec 2024 - Mar 2025</p>
+                        <p class="featured-date">Dec 2024 – Mar 2025</p>
                         <p class="featured-description">
-                            Fullstack computer vision Edge Detection platform with 100+ monthly users and 99% uptime. 
-                            Parallelized 5+ image kernels for 3x CPU speedups using C++, OpenMP, and factory polymorphism. 
-                            Deployed containerized services on AWS ECS.
+                            Full-stack computer vision edge detection with 100+ monthly users and 99% uptime.
+                            Parallelized kernels in C++ and OpenMP; AWS ECS, Amplify, and rate-limited APIs.
                         </p>
                         <div class="tech-stack">
                             <span>C++</span>
@@ -125,12 +135,14 @@
                 <div class="about-grid">
                     <div class="about-card glass-card">
                         <p>
-                            I am a <strong>Software Engineer</strong> and <strong>Research Assistant</strong> at Northeastern University. 
-                            I specialize in high-performance computing, full-stack development, and cloud infrastructure.
+                            I build full-stack web systems and performance tooling — from Django and Vue.js production apps to
+                            CUDA, NVBit, and PyTorch research pipelines. Incoming <strong>Software Engineering Intern</strong> (Web Applications)
+                            at <strong>NVIDIA</strong>; previously <strong>Software Engineer Co-op</strong> at the Boston Red Sox and
+                            <strong>Research Assistant</strong> at Northeastern’s Computer Architecture Research Lab.
                         </p>
                         <p>
-                            Currently pursuing a B.S. in Computer Science with a minor in Computer Engineering. 
-                            Passionate about solving complex problems, from optimizing CUDA kernels to architecting scalable web platforms.
+                            B.S. in Computer Science and minor in Computer Engineering at Northeastern (GPA 3.6/4.0), with coursework
+                            across software engineering, systems, databases, architecture, and networks.
                         </p>
                         <div class="skills-container">
                             <div class="skill-category">
@@ -139,7 +151,7 @@
                             </div>
                             <div class="skill-category">
                                 <strong>Frameworks & Libraries:</strong> 
-                                <span>React, Next.js, Vue.js, Django, Express.js, Node.js, Tailwind, Bootstrap, Selenium, Scrapy, BeautifulSoup, pandas, Streamlit, TensorFlow, NLTK, CUDA, PyTorch, TorchMetrics, OpenMP, Pthreads, OpenCV</span>
+                                <span>React, Next.js, Vue.js, Django, Express.js, Node.js, Java, Spring Boot, Tailwind, Bootstrap, Selenium, Scrapy, BeautifulSoup, pandas, Streamlit, TensorFlow, NLTK, CUDA, PyTorch, TorchMetrics, OpenMP, Pthreads, OpenCV</span>
                             </div>
                             <div class="skill-category">
                                 <strong>Cloud & Databases:</strong> 
@@ -147,8 +159,7 @@
                             </div>
                             <div class="skill-category">
                                 <strong>DevOps & Tools:</strong> 
-                                <span>Docker, Kubernetes, Terraform, Redis, Celery, Slurm, Bash/Shell, Agile (Scrum), Nsight Systems, NVBit, Luthier</span>
-                            </div>
+                                <span>Docker, Kubernetes, Terraform, Redis, Celery, Slurm, Bash/Shell, Agile (Scrum), Nsight Systems, NVBit</span>
                             </div>
                         </div>
                     </div>
@@ -160,7 +171,6 @@
             <div class="container">
                 <h2 class="section-title">Experience</h2>
                 <div class="timeline">
-                    <!-- Content loaded dynamically from data/experience.json -->
                 </div>
             </div>
         </section>
@@ -169,7 +179,6 @@
             <div class="container">
                 <h2 class="section-title">Education</h2>
                 <div class="timeline">
-                    <!-- Content loaded dynamically from data/education.json -->
                 </div>
             </div>
         </section>
@@ -178,7 +187,6 @@
             <div class="container">
                 <h2 class="section-title">Projects</h2>
                 <div class="projects-grid">
-                    <!-- Content loaded dynamically from data/projects.json -->
                 </div>
             </div>
         </section>
@@ -211,10 +219,9 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Kailin Xing. All rights reserved.</p>
+        <p>&copy; 2026 Kailin Xing. All rights reserved.</p>
     </footer>
 
-    <!-- Resume Modal -->
     <div id="resume-modal" class="modal">
         <div class="modal-content glass-card">
             <span class="close-modal">&times;</span>
@@ -228,9 +235,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=202602"></script>
     <script>
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     </script>
 </body>
 </html>

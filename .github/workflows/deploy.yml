@@ -55,24 +55,18 @@ jobs:
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
-            # Login to GHCR
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Create app directory structure
             mkdir -p ~/app/nginx/conf.d
             mkdir -p ~/app/certs
             
-            # Define Image Name
             export IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
             
-            # Pull the new image
             docker pull $IMAGE_NAME
             
-            # Write SSL Certificates from Secrets
             echo "${{ secrets.SSL_CERT }}" > ~/app/certs/origin.pem
             echo "${{ secrets.SSL_KEY }}" > ~/app/certs/origin.key
             
-            # Write docker-compose.yml
             cat <<EOF > ~/app/docker-compose.yml
             services:
               proxy:
@@ -102,16 +96,13 @@ jobs:
                 driver: bridge
             EOF
             
-            # Write Nginx Config
             cat <<EOF > ~/app/nginx/conf.d/default.conf
-            # Redirect HTTP to HTTPS
             server {
                 listen 80;
                 server_name kailinx.com www.kailinx.com;
                 return 301 https://\$host\$request_uri;
             }
 
-            # HTTPS Server
             server {
                 listen 443 ssl;
                 server_name kailinx.com www.kailinx.com;
@@ -138,16 +129,11 @@ jobs:
             }
             EOF
             
-            # Navigate to app directory
             cd ~/app
             
-            # Stop and remove old standalone container if it exists
             docker stop kailinx-site || true
             docker rm kailinx-site || true
             
-            # Start Docker Compose
-            # Pass the IMAGE_NAME env var to docker compose
             IMAGE_NAME=$IMAGE_NAME docker compose up -d --remove-orphans
             
-            # Cleanup unused images
             docker image prune -f

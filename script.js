@@ -1,14 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Mobile Menu Toggle
     const mobileBtn = document.querySelector('.mobile-menu-btn');
     const mobileNav = document.querySelector('.mobile-nav');
     const mobileLinks = document.querySelectorAll('.mobile-nav a');
 
-    if (mobileBtn) {
+    if (mobileBtn && mobileNav) {
         mobileBtn.addEventListener('click', () => {
             mobileNav.classList.toggle('active');
-            const icon = mobileNav.classList.contains('active') ? 'x' : 'menu';
-            // Update icon if needed, or just rely on CSS/overlay
+            const menuIcon = mobileBtn.querySelector('[data-lucide]');
+            if (menuIcon) {
+                menuIcon.setAttribute('data-lucide', mobileNav.classList.contains('active') ? 'x' : 'menu');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
         });
     }
 
@@ -18,12 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Typing Effect
     const text = "Software Engineer";
     const typingElement = document.getElementById('typing-text');
     let i = 0;
 
     function typeWriter() {
+        if (!typingElement) return;
         if (i < text.length) {
             typingElement.innerHTML += text.charAt(i);
             i++;
@@ -31,9 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    setTimeout(typeWriter, 1000);
+    if (typingElement) setTimeout(typeWriter, 1000);
 
-    // Vanta.js Background
     try {
         VANTA.NET({
             el: "#canvas-container",
@@ -54,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Vanta JS not loaded or error initializing", e);
     }
 
-    // Scroll Animation
     const observerOptions = {
         threshold: 0.1
     };
@@ -72,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(section);
     });
 
-    // Resume Modal
     const modal = document.getElementById('resume-modal');
     const btn = document.getElementById('resume-btn');
     const span = document.getElementsByClassName('close-modal')[0];
@@ -80,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn && modal && span) {
         btn.onclick = function() {
             modal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            document.body.style.overflow = 'hidden';
         }
 
         span.onclick = function() {
@@ -96,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Data Fetching and Rendering
     const loadData = async () => {
         try {
             await Promise.all([
@@ -104,8 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadEducation(),
                 loadProjects()
             ]);
-            // Re-initialize icons after dynamic content is loaded
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         } catch (error) {
             console.error('Error loading data:', error);
         }
