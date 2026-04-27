@@ -128,15 +128,21 @@ jobs:
         run: |
           set -euo pipefail
           curl -sfI https://kailinx.com | head -n1
-          protected_code="$(curl -sS -o /dev/null -w '%{http_code}' -I https://api.kailinx.com/v1/events/top)"
-          if [ "$protected_code" != "401" ] && [ "$protected_code" != "403" ]; then
-            echo "Expected 401/403 for protected endpoint, got $protected_code" >&2
-            exit 1
-          fi
-          ingest_code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://api.kailinx.com/v1/events \
-            -H 'content-type: application/json' \
-            -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
-          if [ "$ingest_code" != "202" ] && [ "$ingest_code" != "200" ]; then
-            echo "Expected 200/202 for ingest endpoint, got $ingest_code" >&2
+          ok=false
+          for i in 1 2 3 4 5 6; do
+            protected_code="$(curl -sS -o /dev/null -w '%{http_code}' -I https://api.kailinx.com/v1/events/top)"
+            ingest_code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://api.kailinx.com/v1/events \
+              -H 'content-type: application/json' \
+              -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
+            if { [ "$protected_code" = "401" ] || [ "$protected_code" = "403" ]; } \
+              && { [ "$ingest_code" = "202" ] || [ "$ingest_code" = "200" ]; }; then
+              ok=true
+              break
+            fi
+            echo "Smoke attempt $i failed (protected=$protected_code, ingest=$ingest_code), retrying..."
+            sleep 10
+          done
+          if [ "$ok" != "true" ]; then
+            echo "Smoke check failed after retries" >&2
             exit 1
           fi
