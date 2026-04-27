@@ -81,17 +81,19 @@ jobs:
               exit 1
             fi
 
-            pull_ok=false
-            for i in 1 2 3 4 5; do
-              if docker compose pull web events_dashboard api; then
-                pull_ok=true
-                break
+            for svc in web events_dashboard api; do
+              pull_ok=false
+              for i in 1 2 3 4 5; do
+                if docker compose pull "$svc"; then
+                  pull_ok=true
+                  break
+                fi
+                sleep 20
+              done
+              if [ "$pull_ok" != "true" ]; then
+                echo "docker compose pull failed for $svc after retries" >&2
+                exit 1
               fi
-              sleep 15
             done
-            if [ "$pull_ok" != "true" ]; then
-              echo "docker compose pull failed after retries" >&2
-              exit 1
-            fi
             docker compose --env-file .env up -d
             docker image prune -f
