@@ -30,6 +30,8 @@ jobs:
           context: ./apps/web
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/kailinx-web:latest
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
 
       - name: Build and push dashboard image
         uses: docker/build-push-action@v6
@@ -37,6 +39,8 @@ jobs:
           context: ./apps/events-dashboard
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/kailinx-analytics-dashboard:latest
+          cache-from: type=gha,scope=dashboard
+          cache-to: type=gha,mode=max,scope=dashboard
 
       - name: Build and push api image
         uses: docker/build-push-action@v6
@@ -44,6 +48,8 @@ jobs:
           context: ./apps/api
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/kailinx-api:latest
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
 
   deploy:
     runs-on: ubuntu-latest
@@ -59,7 +65,7 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script_stop: true
-          command_timeout: 15m
+          command_timeout: 30m
           script: |
             cd /opt/kailinx.com
             cat > .env <<'ENVEOF'
