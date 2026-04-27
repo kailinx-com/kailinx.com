@@ -122,23 +122,23 @@ jobs:
               exit 1
             fi
             # API may start before Postgres is fully ready; bounce once after stack is up.
-            sleep 10
+            sleep 5
             docker compose --env-file .env restart api
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
-            # Smoke test on the compose internal network (HTTP 200 only; avoids brittle JSON shape matching).
+            # Quick internal smoke (bounded: 6 tries × ~8s worst case, wget -T caps each request).
             smoke_ok=false
-            for i in 1 2 3 4 5 6 7 8 9 10; do
-              if docker compose --env-file .env exec -T reverse_proxy wget -q -O /dev/null http://api:8080/actuator/health 2>/dev/null \
-                && docker compose --env-file .env exec -T reverse_proxy wget -q -O /dev/null http://web:3000 2>/dev/null; then
+            for i in 1 2 3 4 5 6; do
+              if docker compose --env-file .env exec -T reverse_proxy sh -c \
+                'wget -T 4 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null && wget -T 4 -q -O /dev/null http://web:3000 2>/dev/null'; then
                 smoke_ok=true
                 break
               fi
-              echo "Internal smoke attempt $i failed, retrying..."
-              sleep 10
+              echo "Smoke check $i/6 failed; retry in 4s..."
+              sleep 4
             done
             if [ "$smoke_ok" != "true" ]; then
-              echo "Internal smoke check failed after retries" >&2
+              echo "Internal smoke check failed after 6 attempts (~40s cap)" >&2
               exit 1
             fi
