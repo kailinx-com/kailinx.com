@@ -121,6 +121,9 @@ jobs:
               echo "docker compose up failed after retries" >&2
               exit 1
             fi
+            # API may start before Postgres is fully ready; bounce once after stack is up.
+            sleep 10
+            docker compose --env-file .env restart api
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
