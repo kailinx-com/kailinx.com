@@ -105,7 +105,22 @@ jobs:
               fi
             done
 
-            docker compose --env-file .env up -d
+            up_ok=false
+            for i in 1 2 3; do
+              if docker compose --env-file .env up -d; then
+                up_ok=true
+                break
+              fi
+              # Recover from occasional stale temp container name conflicts during recreate.
+              docker ps -a --format '{{.ID}} {{.Names}}' \
+                | awk '/_kailinxcom-(web|events_dashboard|api)-1$/ {print $1}' \
+                | xargs -r docker rm -f || true
+              sleep 5
+            done
+            if [ "$up_ok" != "true" ]; then
+              echo "docker compose up failed after retries" >&2
+              exit 1
+            fi
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
