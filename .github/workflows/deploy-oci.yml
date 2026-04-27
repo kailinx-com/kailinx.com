@@ -73,7 +73,7 @@ jobs:
               sleep 10
             done
             for i in 1 2 3 4 5; do
-              docker compose pull && break
+              docker compose pull web events_dashboard api && break
               sleep 15
             done
             docker compose --env-file .env up -d
