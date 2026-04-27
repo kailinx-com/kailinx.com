@@ -68,13 +68,30 @@ jobs:
             GRAFANA_ADMIN_USER=${{ secrets.GRAFANA_ADMIN_USER }}
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             ENVEOF
+            login_ok=false
             for i in 1 2 3 4 5; do
-              echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin && break
+              if echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin; then
+                login_ok=true
+                break
+              fi
               sleep 10
             done
+            if [ "$login_ok" != "true" ]; then
+              echo "GHCR login failed after retries" >&2
+              exit 1
+            fi
+
+            pull_ok=false
             for i in 1 2 3 4 5; do
-              docker compose pull web events_dashboard api && break
+              if docker compose pull web events_dashboard api; then
+                pull_ok=true
+                break
+              fi
               sleep 15
             done
+            if [ "$pull_ok" != "true" ]; then
+              echo "docker compose pull failed after retries" >&2
+              exit 1
+            fi
             docker compose --env-file .env up -d
             docker image prune -f
