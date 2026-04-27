@@ -45,6 +45,24 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/kailinx-api:latest
 
+      - name: Package deploy images artifact
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/kailinx-web:latest
+          docker pull ghcr.io/${{ github.repository_owner }}/kailinx-analytics-dashboard:latest
+          docker pull ghcr.io/${{ github.repository_owner }}/kailinx-api:latest
+          docker save \
+            ghcr.io/${{ github.repository_owner }}/kailinx-web:latest \
+            ghcr.io/${{ github.repository_owner }}/kailinx-analytics-dashboard:latest \
+            ghcr.io/${{ github.repository_owner }}/kailinx-api:latest \
+            -o deploy-images.tar
+
+      - name: Upload deploy images artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-images
+          path: deploy-images.tar
+          retention-days: 1
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
@@ -52,6 +70,21 @@ jobs:
       contents: read
       packages: read
     steps:
+      - name: Download deploy images artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-images
+          path: .
+
+      - name: Copy deploy images to OCI
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          source: deploy-images.tar
+          target: /tmp
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -68,32 +101,7 @@ jobs:
             GRAFANA_ADMIN_USER=${{ secrets.GRAFANA_ADMIN_USER }}
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             ENVEOF
-            login_ok=false
-            for i in 1 2 3 4 5; do
-              if echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin; then
-                login_ok=true
-                break
-              fi
-              sleep 10
-            done
-            if [ "$login_ok" != "true" ]; then
-              echo "GHCR login failed after retries" >&2
-              exit 1
-            fi
-
-            for svc in web events_dashboard api; do
-              pull_ok=false
-              for i in 1 2 3 4 5; do
-                if docker compose pull "$svc"; then
-                  pull_ok=true
-                  break
-                fi
-                sleep 20
-              done
-              if [ "$pull_ok" != "true" ]; then
-                echo "docker compose pull failed for $svc after retries" >&2
-                exit 1
-              fi
-            done
+            docker load -i /tmp/deploy-images.tar
+            rm -f /tmp/deploy-images.tar
             docker compose --env-file .env up -d
             docker image prune -f
