@@ -127,14 +127,14 @@ jobs:
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
-            # Smoke test from host through nginx (TLS vhost; -k tolerates local/LetsEncrypt chain quirks on loopback).
+            # Smoke test from host through nginx: --resolve sets SNI+DNS to api vhost (127.0.0.1 alone breaks TLS server_name).
             smoke_ok=false
-            for i in 1 2 3 4 5 6; do
-              protected_code="$(curl -k -sS -o /dev/null -w '%{http_code}' -I -H 'Host: api.kailinx.com' https://127.0.0.1/v1/events/top)"
+            for i in 1 2 3 4 5 6 7 8 9 10; do
+              protected_code="$(curl -k -sS -o /dev/null -w '%{http_code}' -I --resolve api.kailinx.com:443:127.0.0.1 https://api.kailinx.com/v1/events/top)"
               ingest_code="$(curl -k -sS -o /dev/null -w '%{http_code}' -X POST \
-                -H 'Host: api.kailinx.com' \
+                --resolve api.kailinx.com:443:127.0.0.1 \
                 -H 'content-type: application/json' \
-                https://127.0.0.1/v1/events \
+                https://api.kailinx.com/v1/events \
                 -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
               if { [ "$protected_code" = "401" ] || [ "$protected_code" = "403" ]; } \
                 && { [ "$ingest_code" = "202" ] || [ "$ingest_code" = "200" ]; }; then
