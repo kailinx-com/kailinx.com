@@ -36,6 +36,29 @@ public class EventService {
   public EventService(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
     this.jdbcTemplate = jdbcTemplate;
     this.objectMapper = objectMapper;
+    ensureSchema();
+  }
+
+  private void ensureSchema() {
+    jdbcTemplate.execute("""
+      CREATE TABLE IF NOT EXISTS events_raw (
+        id BIGSERIAL PRIMARY KEY,
+        happened_at TIMESTAMPTZ NOT NULL,
+        event_name TEXT NOT NULL,
+        session_id TEXT,
+        page TEXT,
+        referrer TEXT,
+        device TEXT,
+        ip_hash TEXT,
+        ua_hash TEXT,
+        props JSONB NOT NULL DEFAULT '{}'::jsonb
+      )
+      """);
+    jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_events_raw_happened_at ON events_raw(happened_at DESC)");
+    jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_events_raw_event_name ON events_raw(event_name)");
+    jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_events_raw_page ON events_raw(page)");
+    jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_events_raw_referrer ON events_raw(referrer)");
+    jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_events_raw_device ON events_raw(device)");
   }
 
   public int ingest(List<EventDtos.EventPayload> payloads, String ipHash, String uaHash) {
