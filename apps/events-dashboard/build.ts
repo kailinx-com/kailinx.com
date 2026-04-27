@@ -1,5 +1,5 @@
 import tailwind from "bun-plugin-tailwind";
-import { copyFile, readdir, rm } from "node:fs/promises";
+import { copyFile, readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
 const outdir = path.join(process.cwd(), "dist");
@@ -24,9 +24,16 @@ for (const output of result.outputs) {
 }
 
 const staticDir = path.join(process.cwd(), "static");
-const rootStatic = (await readdir(staticDir, { withFileTypes: true }))
-  .filter(d => d.isFile())
-  .map(d => d.name);
-for (const name of rootStatic) {
-  await copyFile(path.join(staticDir, name), path.join(outdir, name));
+try {
+  const staticStats = await stat(staticDir);
+  if (staticStats.isDirectory()) {
+    const rootStatic = (await readdir(staticDir, { withFileTypes: true }))
+      .filter(d => d.isFile())
+      .map(d => d.name);
+    for (const name of rootStatic) {
+      await copyFile(path.join(staticDir, name), path.join(outdir, name));
+    }
+  }
+} catch {
+  // Optional static assets directory may be absent in CI.
 }
