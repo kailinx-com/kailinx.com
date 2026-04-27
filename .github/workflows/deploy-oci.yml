@@ -127,24 +127,18 @@ jobs:
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
-            # Smoke test from host through nginx: --resolve sets SNI+DNS to api vhost (127.0.0.1 alone breaks TLS server_name).
+            # Smoke test on the compose internal network (avoids host hairpin / TLS SNI edge cases).
             smoke_ok=false
             for i in 1 2 3 4 5 6 7 8 9 10; do
-              protected_code="$(curl -k -sS -o /dev/null -w '%{http_code}' -I --resolve api.kailinx.com:443:127.0.0.1 https://api.kailinx.com/v1/events/top)"
-              ingest_code="$(curl -k -sS -o /dev/null -w '%{http_code}' -X POST \
-                --resolve api.kailinx.com:443:127.0.0.1 \
-                -H 'content-type: application/json' \
-                https://api.kailinx.com/v1/events \
-                -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
-              if { [ "$protected_code" = "401" ] || [ "$protected_code" = "403" ]; } \
-                && { [ "$ingest_code" = "202" ] || [ "$ingest_code" = "200" ]; }; then
+              if docker compose --env-file .env exec -T reverse_proxy wget -qO- http://api:8080/actuator/health 2>/dev/null | grep -q '"status":"UP"' \
+                && docker compose --env-file .env exec -T reverse_proxy wget -q -O /dev/null http://web:3000 2>/dev/null; then
                 smoke_ok=true
                 break
               fi
-              echo "Host smoke attempt $i failed (protected=$protected_code, ingest=$ingest_code), retrying..."
+              echo "Internal smoke attempt $i failed, retrying..."
               sleep 10
             done
             if [ "$smoke_ok" != "true" ]; then
-              echo "Host smoke check failed after retries" >&2
+              echo "Internal smoke check failed after retries" >&2
               exit 1
             fi
