@@ -127,10 +127,10 @@ jobs:
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
-            # Smoke test on the compose internal network (avoids host hairpin / TLS SNI edge cases).
+            # Smoke test on the compose internal network (HTTP 200 only; avoids brittle JSON shape matching).
             smoke_ok=false
             for i in 1 2 3 4 5 6 7 8 9 10; do
-              if docker compose --env-file .env exec -T reverse_proxy wget -qO- http://api:8080/actuator/health 2>/dev/null | grep -q '"status":"UP"' \
+              if docker compose --env-file .env exec -T reverse_proxy wget -q -O /dev/null http://api:8080/actuator/health 2>/dev/null \
                 && docker compose --env-file .env exec -T reverse_proxy wget -q -O /dev/null http://web:3000 2>/dev/null; then
                 smoke_ok=true
                 break
