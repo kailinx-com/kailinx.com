@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script_stop: true
-          command_timeout: 20m
+          command_timeout: 15m
           script: |
             cd /opt/kailinx.com
             cat > .env <<'ENVEOF'
@@ -69,41 +69,35 @@ jobs:
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             ENVEOF
 
-            # Flaky OCI egress + concurrent layer downloads were causing short reads/timeouts.
-            # Force serialized pulls at the daemon level before pulling.
-            if [ ! -f /etc/docker/daemon.json ] || ! grep -q "max-concurrent-downloads" /etc/docker/daemon.json; then
-              echo '{"max-concurrent-downloads": 1}' | sudo tee /etc/docker/daemon.json >/dev/null
-              sudo systemctl restart docker
-            fi
+            # Do not restart the Docker daemon here (slow, drops pulls). If OCI pulls are flaky,
+            # set max-concurrent-downloads once on the host outside this script.
 
             login_ok=false
-            for i in 1 2 3 4 5; do
+            for i in 1 2 3; do
               if echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin; then
                 login_ok=true
                 break
               fi
-              sleep 10
+              sleep 5
             done
             if [ "$login_ok" != "true" ]; then
               echo "GHCR login failed after retries" >&2
               exit 1
             fi
 
-            for svc in web events_dashboard api; do
-              pull_ok=false
-              for i in 1 2 3 4 5; do
-                if timeout 240 docker compose pull "$svc"; then
-                  pull_ok=true
-                  break
-                fi
-                docker image prune -f || true
-                sleep 15
-              done
-              if [ "$pull_ok" != "true" ]; then
-                echo "docker compose pull failed for $svc after retries" >&2
-                exit 1
+            pull_ok=false
+            for i in 1 2 3; do
+              if timeout 300 docker compose pull web events_dashboard api; then
+                pull_ok=true
+                break
               fi
+              docker image prune -f || true
+              sleep 8
             done
+            if [ "$pull_ok" != "true" ]; then
+              echo "docker compose pull failed after retries" >&2
+              exit 1
+            fi
 
             up_ok=false
             for i in 1 2 3; do
@@ -111,34 +105,36 @@ jobs:
                 up_ok=true
                 break
               fi
-              # Recover from occasional stale temp container name conflicts during recreate.
               docker ps -a --format '{{.ID}} {{.Names}}' \
                 | awk '/_kailinxcom-(web|events_dashboard|api)-1$/ {print $1}' \
                 | xargs -r docker rm -f || true
-              sleep 5
+              sleep 4
             done
             if [ "$up_ok" != "true" ]; then
               echo "docker compose up failed after retries" >&2
               exit 1
             fi
-            # API may start before Postgres is fully ready; bounce once after stack is up.
-            sleep 5
-            docker compose --env-file .env restart api
-            docker compose --env-file .env restart reverse_proxy
-            docker image prune -f
 
-            # Quick internal smoke (bounded: 6 tries × ~8s worst case, wget -T caps each request).
+            sleep 3
+            docker compose --env-file .env restart api
+            # Reload nginx in place (seconds) instead of restarting the whole container (~minute+).
+            docker compose --env-file .env exec -T reverse_proxy nginx -s reload \
+              || docker compose --env-file .env restart reverse_proxy
+
+            # Prune in background so deploy does not block on GC.
+            (docker image prune -f >/dev/null 2>&1 &) || true
+
             smoke_ok=false
-            for i in 1 2 3 4 5 6; do
+            for i in 1 2 3 4 5; do
               if docker compose --env-file .env exec -T reverse_proxy sh -c \
-                'wget -T 4 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null && wget -T 4 -q -O /dev/null http://web:3000 2>/dev/null'; then
+                'wget -T 3 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null && wget -T 3 -q -O /dev/null http://web:3000 2>/dev/null'; then
                 smoke_ok=true
                 break
               fi
-              echo "Smoke check $i/6 failed; retry in 4s..."
-              sleep 4
+              echo "Smoke check $i/5 failed; retry in 3s..."
+              sleep 3
             done
             if [ "$smoke_ok" != "true" ]; then
-              echo "Internal smoke check failed after 6 attempts (~40s cap)" >&2
+              echo "Internal smoke check failed after 5 attempts" >&2
               exit 1
             fi
