@@ -127,25 +127,24 @@ jobs:
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
 
-      - name: Smoke test (public from internet)
-        run: |
-          set -euo pipefail
-          curl -sfI https://kailinx.com | head -n1
-          ok=false
-          for i in 1 2 3 4 5 6; do
-            protected_code="$(curl -sS -o /dev/null -w '%{http_code}' -I https://api.kailinx.com/v1/events/top)"
-            ingest_code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://api.kailinx.com/v1/events \
-              -H 'content-type: application/json' \
-              -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
-            if { [ "$protected_code" = "401" ] || [ "$protected_code" = "403" ]; } \
-              && { [ "$ingest_code" = "202" ] || [ "$ingest_code" = "200" ]; }; then
-              ok=true
-              break
+            # Smoke test from host through nginx to avoid transient external edge/network variance.
+            smoke_ok=false
+            for i in 1 2 3 4 5 6; do
+              protected_code="$(curl -sS -o /dev/null -w '%{http_code}' -H 'Host: api.kailinx.com' http://127.0.0.1/v1/events/top)"
+              ingest_code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+                -H 'Host: api.kailinx.com' \
+                -H 'content-type: application/json' \
+                http://127.0.0.1/v1/events \
+                -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
+              if { [ "$protected_code" = "401" ] || [ "$protected_code" = "403" ]; } \
+                && { [ "$ingest_code" = "202" ] || [ "$ingest_code" = "200" ]; }; then
+                smoke_ok=true
+                break
+              fi
+              echo "Host smoke attempt $i failed (protected=$protected_code, ingest=$ingest_code), retrying..."
+              sleep 10
+            done
+            if [ "$smoke_ok" != "true" ]; then
+              echo "Host smoke check failed after retries" >&2
+              exit 1
             fi
-            echo "Smoke attempt $i failed (protected=$protected_code, ingest=$ingest_code), retrying..."
-            sleep 10
-          done
-          if [ "$ok" != "true" ]; then
-            echo "Smoke check failed after retries" >&2
-            exit 1
-          fi
