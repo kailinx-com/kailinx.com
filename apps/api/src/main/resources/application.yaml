@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: api
+  datasource:
+    url: ${EVENTS_DB_URL:jdbc:postgresql://postgres:5432/events}
+    username: ${EVENTS_DB_USER:events}
+    password: ${EVENTS_DB_PASSWORD:events}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+server:
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+events:
+  private-token: ${EVENTS_INTERNAL_TOKEN:change-me}
+  rate-limit:
+    requests-per-minute: ${EVENTS_RATE_LIMIT_RPM:240}
