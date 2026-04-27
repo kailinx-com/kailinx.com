@@ -108,3 +108,13 @@ jobs:
             docker compose --env-file .env up -d
             docker compose --env-file .env restart reverse_proxy
             docker image prune -f
+
+      - name: Smoke test (public from internet)
+        run: |
+          set -euo pipefail
+          curl -sfI https://kailinx.com | head -n1
+          test "$(curl -sS -o /dev/null -w '%{http_code}' -I https://api.kailinx.com/v1/events/top)" = "401"
+          code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://api.kailinx.com/v1/events \
+            -H 'content-type: application/json' \
+            -d '{"events":[{"eventName":"deploy_smoke","happenedAt":"2026-04-27T00:00:00Z","page":"/","props":{}}]}')"
+          test "$code" = "202" || test "$code" = "200"
