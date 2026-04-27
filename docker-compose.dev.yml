@@ -1,7 +1,0 @@
-services:
-  portfolio:
-    build: .
-    image: kailinx-com:dev
-    container_name: kailinx-com-dev
-    ports:
-      - "8080:80"

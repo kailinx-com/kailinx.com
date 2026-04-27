@@ -1,8 +1,160 @@
 services:
-  portfolio:
-    build: .
-    image: kailinx-com:latest
-    container_name: kailinx-com
+  reverse_proxy:
+    image: nginx:1.27-alpine
+    container_name: reverse_proxy
+    restart: unless-stopped
     ports:
-      - "8080:80"
-    restart: always
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./infra/nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
+      - events_dashboard
+      - api
+      - grafana
+    networks:
+      - public
+      - internal
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+
+  web:
+    image: ghcr.io/kailinx-com/kailinx-web:latest
+    build:
+      context: ./apps/web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - internal
+    security_opt:
+      - no-new-privileges:true
+
+  events_dashboard:
+    image: ghcr.io/kailinx-com/kailinx-analytics-dashboard:latest
+    build:
+      context: ./apps/events-dashboard
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - EVENTS_API_BASE=https://api.kailinx.com
+      - EVENTS_DASHBOARD_TOKEN=${EVENTS_INTERNAL_TOKEN}
+    networks:
+      - internal
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    image: ghcr.io/kailinx-com/kailinx-api:latest
+    build:
+      context: ./apps/api
+    restart: unless-stopped
+    environment:
+      - EVENTS_DB_URL=jdbc:postgresql://postgres:5432/events
+      - EVENTS_DB_USER=events
+      - EVENTS_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - EVENTS_INTERNAL_TOKEN=${EVENTS_INTERNAL_TOKEN}
+      - EVENTS_RATE_LIMIT_RPM=240
+    depends_on:
+      - postgres
+      - otel_collector
+    networks:
+      - internal
+    security_opt:
+      - no-new-privileges:true
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=events
+      - POSTGRES_USER=events
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U events -d events"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  otel_collector:
+    image: otel/opentelemetry-collector-contrib:0.108.0
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./infra/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+    networks:
+      - internal
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - internal
+
+  loki:
+    image: grafana/loki:3.1.1
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - ./infra/loki/loki.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - internal
+
+  promtail:
+    image: grafana/promtail:3.1.1
+    restart: unless-stopped
+    command: ["-config.file=/etc/promtail/config.yml"]
+    volumes:
+      - ./infra/promtail/promtail.yaml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+    networks:
+      - internal
+
+  grafana:
+    image: grafana/grafana:11.1.5
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SERVER_ROOT_URL=https://grafana.kailinx.com
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - internal
+
+networks:
+  public:
+  internal:
+    internal: true
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  loki_data:
+  grafana_data:
