@@ -106,4 +106,5 @@ jobs:
             done
 
             docker compose --env-file .env up -d
+            docker compose --env-file .env restart reverse_proxy
             docker image prune -f
