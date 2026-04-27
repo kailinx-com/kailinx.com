@@ -92,7 +92,7 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script_stop: true
-          command_timeout: 30m
+          command_timeout: 90m
           script: |
             cd /opt/kailinx.com
             cat > .env <<'ENVEOF'
