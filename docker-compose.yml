@@ -10,6 +10,7 @@ services:
       - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./infra/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
       - ./infra/nginx/certs:/etc/nginx/certs:ro
+      - ./certbot-webroot:/var/www/certbot:ro
     depends_on:
       - web
       - events_dashboard
@@ -141,7 +142,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
       - loki
