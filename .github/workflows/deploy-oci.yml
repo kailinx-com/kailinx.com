@@ -67,7 +67,13 @@ jobs:
             GRAFANA_ADMIN_USER=${{ secrets.GRAFANA_ADMIN_USER }}
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             ENVEOF
-            echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            docker compose pull
+            for i in 1 2 3 4 5; do
+              echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin && break
+              sleep 10
+            done
+            for i in 1 2 3 4 5; do
+              docker compose pull && break
+              sleep 15
+            done
             docker compose --env-file .env up -d
             docker image prune -f
