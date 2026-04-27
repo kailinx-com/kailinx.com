@@ -1,33 +1,54 @@
-name: Deploy to OCI
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  verify:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
+  build-and-push:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -37,7 +58,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -50,7 +71,7 @@ jobs:
     permissions:
       packages: read
     steps:
-      - name: Deploy to OCI via SSH
+      - name: Deploy on OCI host
         uses: appleboy/ssh-action@v1.0.3
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,19 +81,20 @@ jobs:
           key: ${{ secrets.OCI_SSH_KEY }}
           envs: GHCR_TOKEN
           script: |
-            echo $GHCR_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
+            set -e
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             mkdir -p ~/app/nginx/conf.d
             mkdir -p ~/app/certs
-            
+
             export IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
-            
-            docker pull $IMAGE_NAME
-            
+            docker pull "$IMAGE_NAME"
+
             echo "${{ secrets.SSL_CERT }}" > ~/app/certs/origin.pem
             echo "${{ secrets.SSL_KEY }}" > ~/app/certs/origin.key
-            
-            cat <<EOF > ~/app/docker-compose.yml
+
+            cat <<'EOF' > ~/app/docker-compose.yml
             services:
               proxy:
                 image: nginx:alpine
@@ -90,7 +112,7 @@ jobs:
                   - app-network
 
               portfolio:
-                image: $IMAGE_NAME
+                image: IMAGE_PLACEHOLDER
                 container_name: kailinx-com
                 restart: always
                 networks:
@@ -100,12 +122,14 @@ jobs:
               app-network:
                 driver: bridge
             EOF
-            
-            cat <<EOF > ~/app/nginx/conf.d/default.conf
+
+            sed -i '' "s|IMAGE_PLACEHOLDER|$IMAGE_NAME|g" ~/app/docker-compose.yml || sed -i "s|IMAGE_PLACEHOLDER|$IMAGE_NAME|g" ~/app/docker-compose.yml
+
+            cat <<'EOF' > ~/app/nginx/conf.d/default.conf
             server {
                 listen 80;
                 server_name kailinx.com www.kailinx.com;
-                return 301 https://\$host\$request_uri;
+                return 301 https://$host$request_uri;
             }
 
             server {
@@ -114,28 +138,19 @@ jobs:
 
                 ssl_certificate /etc/nginx/certs/origin.pem;
                 ssl_certificate_key /etc/nginx/certs/origin.key;
-                
                 ssl_protocols TLSv1.2 TLSv1.3;
                 ssl_ciphers HIGH:!aNULL:!MD5;
 
                 location / {
                     proxy_pass http://portfolio:80;
-                    proxy_set_header Host \$host;
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto \$scheme;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
                 }
             }
-            
-            server {
-                listen 80 default_server;
-                server_name _;
-                return 444;
-            }
             EOF
-            
+
             cd ~/app
-            
-            IMAGE_NAME=$IMAGE_NAME docker compose up -d --remove-orphans --force-recreate
-            
+            docker compose up -d --remove-orphans --force-recreate
             docker image prune -f

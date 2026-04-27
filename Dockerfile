@@ -1,13 +1,19 @@
+FROM oven/bun:1 AS builder
+
+WORKDIR /app
+
+COPY package.json bun.lock bunfig.toml tsconfig.json build.ts bun-env.d.ts components.json ./
+COPY src ./src
+COPY styles ./styles
+COPY static ./static
+
+RUN bun install --frozen-lockfile
+RUN bun run build
+
 FROM nginx:alpine
 
-RUN rm -rf /usr/share/nginx/html/*
-
-COPY index.html /usr/share/nginx/html/
-COPY styles.css /usr/share/nginx/html/
-COPY script.js /usr/share/nginx/html/
-COPY Kailin_Xing_Resume_SoftwareIntern.pdf /usr/share/nginx/html/
-
-COPY data /usr/share/nginx/html/data
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 

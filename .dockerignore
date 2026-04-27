@@ -4,3 +4,7 @@
 LICENSE
 README.md
 certs
+node_modules
+dist
+.DS_Store
+.cursor

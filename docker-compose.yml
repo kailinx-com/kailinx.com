@@ -1,27 +1,8 @@
 services:
-  proxy:
-    image: nginx:alpine
-    container_name: kailinx-gateway
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./certs:/etc/nginx/certs
-    depends_on:
-      - portfolio
-    restart: always
-    networks:
-      - app-network
-
   portfolio:
     build: .
-    image: kailinx-portfolio:latest
+    image: kailinx-com:latest
     container_name: kailinx-com
+    ports:
+      - "8080:80"
     restart: always
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
