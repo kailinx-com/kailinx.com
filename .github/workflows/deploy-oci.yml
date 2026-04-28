@@ -101,7 +101,7 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script_stop: true
-          command_timeout: 30m
+          command_timeout: 45m
           script: |
             cd /opt/kailinx.com
             cat > .env <<'ENVEOF'
@@ -145,38 +145,10 @@ jobs:
               exit 1
             fi
 
-            up_ok=false
-            for i in 1 2 3; do
-              if docker compose --env-file .env up -d; then
-                up_ok=true
-                break
-              fi
-              docker ps -a --format '{{.ID}} {{.Names}}' \
-                | awk '/_kailinxcom-(web|events_dashboard|api)-1$/ {print $1}' \
-                | xargs -r docker rm -f || true
-              sleep 4
-            done
-            if [ "$up_ok" != "true" ]; then
-              echo "docker compose up failed after retries" >&2
-              exit 1
-            fi
-
-            # Cold-start race: bounce API once then wait until actuator responds before reloading nginx.
-            docker compose --env-file .env restart api
-            api_ok=false
-            i=1
-            while [ "$i" -le 45 ]; do
-              if docker compose --env-file .env exec -T reverse_proxy \
-                wget -T 3 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null; then
-                api_ok=true
-                break
-              fi
-              sleep 2
-              i=$((i + 1))
-            done
-            if [ "$api_ok" != "true" ]; then
-              echo "API health did not become ready (check Postgres password matches DB volume / logs)" >&2
-              docker compose --env-file .env logs --tail 120 api >&2 || true
+            # --wait blocks until api healthcheck passes (can exceed ~15 min cold JVM on small hosts).
+            if ! docker compose --env-file .env up -d --wait --wait-timeout 2100; then
+              echo "docker compose up --wait failed or timed out (Postgres vs secrets / api logs)" >&2
+              docker compose --env-file .env logs --tail 200 api >&2 || true
               exit 1
             fi
 

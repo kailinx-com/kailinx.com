@@ -62,8 +62,20 @@ services:
       - EVENTS_INTERNAL_TOKEN=${EVENTS_INTERNAL_TOKEN}
       - EVENTS_RATE_LIMIT_RPM=240
     depends_on:
-      - postgres
-      - otel_collector
+      postgres:
+        condition: service_healthy
+      otel_collector:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:8080/actuator/health >/dev/null || exit 1",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 960s
     networks:
       - internal
     security_opt:
