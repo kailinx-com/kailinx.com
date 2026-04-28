@@ -163,7 +163,7 @@ jobs:
             smoke_ok=false
             for i in 1 2 3 4 5; do
               if docker compose --env-file .env exec -T reverse_proxy sh -c \
-                'wget -T 3 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null && wget -T 3 -q -O /dev/null http://web:3000 2>/dev/null'; then
+                'wget -T 3 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null && wget -T 3 -q -O /dev/null http://web:3000 2>/dev/null && wget -T 3 -q -O /dev/null http://events_dashboard:3100 2>/dev/null'; then
                 smoke_ok=true
                 break
               fi

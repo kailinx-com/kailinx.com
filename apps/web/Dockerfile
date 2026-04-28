@@ -9,9 +9,8 @@ RUN bun run build
 
 FROM oven/bun:1.2.16-alpine
 WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/src/server.ts ./src/server.ts
 USER bun
 EXPOSE 3000
-CMD ["bun", "run", "start"]
+CMD ["bun", "src/server.ts"]
