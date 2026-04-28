@@ -104,6 +104,18 @@ jobs:
           command_timeout: 45m
           script: |
             cd /opt/kailinx.com
+
+            # Sync compose/nginx/infra from GitHub so TLS/nginx fixes deploy with images (host checkout).
+            export GIT_TERMINAL_PROMPT=0
+            if [ -d .git ]; then
+              git remote remove deploy-fetch 2>/dev/null || true
+              git remote add deploy-fetch "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+              git fetch deploy-fetch main
+              git checkout main
+              git reset --hard deploy-fetch/main
+              git remote remove deploy-fetch
+            fi
+
             cat > .env <<'ENVEOF'
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             EVENTS_INTERNAL_TOKEN=${{ secrets.EVENTS_INTERNAL_TOKEN }}
@@ -152,9 +164,8 @@ jobs:
               exit 1
             fi
 
-            # Reload nginx in place (seconds) instead of restarting the whole container (~minute+).
-            docker compose --env-file .env exec -T reverse_proxy nginx -s reload \
-              || docker compose --env-file .env restart reverse_proxy
+            # Full restart so nginx re-resolves Docker DNS for api/web upstreams after image pulls.
+            docker compose --env-file .env restart reverse_proxy
 
             # Prune in background so deploy does not block on GC.
             (docker image prune -f >/dev/null 2>&1 &) || true
