@@ -5,7 +5,7 @@ const distDir = path.resolve(import.meta.dir, "../dist");
 
 function safeFilePath(pathname: string): string | null {
   const filePath = path.join(distDir, path.normalize(pathname));
-  if (!filePath.startsWith(distDir + path.sep) && filePath !== distDir) return null;
+  if (!filePath.startsWith(distDir + path.sep)) return null;
   return filePath;
 }
 

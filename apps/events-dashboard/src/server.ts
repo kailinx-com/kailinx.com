@@ -9,7 +9,7 @@ const server = serve({
     "/*": async (req) => {
       const url = new URL(req.url);
       const filePath = path.join(distDir, path.normalize(url.pathname));
-      if (!filePath.startsWith(distDir + path.sep) && filePath !== distDir) {
+      if (!filePath.startsWith(distDir + path.sep)) {
         return new Response(Bun.file(path.join(distDir, "index.html")));
       }
       const file = Bun.file(filePath);
