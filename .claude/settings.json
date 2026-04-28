@@ -21,7 +21,9 @@
       "Bash(pkill -f \"bun src/server.ts\")",
       "Bash(bun -e ' *)",
       "Bash(pkill -f \"bun src/server\")",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(grep -v \"\\\\${{\")",
+      "Bash(git check-ignore *)"
     ]
   }
 }
