@@ -4,7 +4,24 @@
       "Bash(bun run *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
       "Bash(xargs cat *)",
-      "WebFetch(domain:kailinx.com)"
+      "WebFetch(domain:kailinx.com)",
+      "Bash(git show *)",
+      "Bash(curl -s https://kailinx.com)",
+      "Bash(curl -s https://kailinx.com/chunk-15ftgzfc.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://kailinx.com/chunk-15ftgzfc.js)",
+      "Bash(bun src/server.ts)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/chunk-15ftgzfc.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/chunk-w3hvjsxt.css)",
+      "Bash(kill %1)",
+      "Bash(curl -sI https://kailinx.com/chunk-15ftgzfc.js)",
+      "Bash(curl -sI https://kailinx.com/)",
+      "Bash(curl -sI http://localhost:3000/)",
+      "Bash(curl -sI http://localhost:3000/chunk-15ftgzfc.js)",
+      "Bash(pkill -f \"bun src/server.ts\")",
+      "Bash(bun -e ' *)",
+      "Bash(pkill -f \"bun src/server\")",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
