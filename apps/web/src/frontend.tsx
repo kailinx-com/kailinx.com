@@ -38,4 +38,4 @@ const app = (
   </StrictMode>
 );
 
-(import.meta.hot.data.root ??= createRoot(elem)).render(app);
+createRoot(elem).render(app);
