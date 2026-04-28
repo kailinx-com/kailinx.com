@@ -127,6 +127,10 @@ jobs:
               echo "Missing required secret(s): GRAFANA_ADMIN_USER / GRAFANA_ADMIN_PASSWORD" >&2
               exit 1
             fi
+            # Production OCI serves TLS on 443 from cert files; repo default is HTTP nginx.conf for local dev.
+            if [ -f infra/nginx/certs/fullchain.pem ] && [ -f infra/nginx/certs/privkey.pem ]; then
+              cp infra/nginx/nginx.tls.conf infra/nginx/nginx.conf
+            fi
             # Use the same username/password scheme for nginx basic auth (analytics/api/grafana gateway)
             # and Grafana app login by deriving htpasswd from Grafana secrets.
             printf "%s:%s\n" "${{ secrets.GRAFANA_ADMIN_USER }}" "$(openssl passwd -apr1 "${{ secrets.GRAFANA_ADMIN_PASSWORD }}")" > infra/nginx/.htpasswd
