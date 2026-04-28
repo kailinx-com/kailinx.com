@@ -36,3 +36,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Credentials — never commit ###
+CREDENTIALS.md
+.env
+.env.*
+!.env.example
