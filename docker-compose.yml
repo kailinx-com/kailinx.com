@@ -17,7 +17,6 @@ services:
       - api
       - grafana
     networks:
-      - public
       - internal
     read_only: true
     tmpfs:
@@ -162,7 +161,6 @@ services:
       - internal
 
 networks:
-  public:
   internal:
 
 volumes:
