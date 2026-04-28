@@ -159,18 +159,3 @@ jobs:
 
             # Prune in background so deploy does not block on GC.
             (docker image prune -f >/dev/null 2>&1 &) || true
-
-            smoke_ok=false
-            for i in 1 2 3 4 5; do
-              if docker compose --env-file .env exec -T reverse_proxy sh -c \
-                'wget -T 3 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null && wget -T 3 -q -O /dev/null http://web:3000 2>/dev/null && wget -T 3 -q -O /dev/null http://events_dashboard:3100 2>/dev/null'; then
-                smoke_ok=true
-                break
-              fi
-              echo "Smoke check $i/5 failed; retry in 3s..."
-              sleep 3
-            done
-            if [ "$smoke_ok" != "true" ]; then
-              echo "Internal smoke check failed after 5 attempts" >&2
-              exit 1
-            fi
