@@ -10,7 +10,7 @@ type EventEnvelope = {
   props: Record<string, string | number | boolean | null>;
 };
 
-const API_BASE = process.env.EVENTS_API_BASE ?? "https://api.kailinx.com";
+const API_BASE = "https://api.kailinx.com";
 const STORAGE_KEY = "kailinx.events.session";
 
 function getSessionId() {
