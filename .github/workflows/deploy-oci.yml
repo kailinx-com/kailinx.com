@@ -161,6 +161,25 @@ jobs:
               exit 1
             fi
 
+            # Cold-start race: bounce API once then wait until actuator responds before reloading nginx.
+            docker compose --env-file .env restart api
+            api_ok=false
+            i=1
+            while [ "$i" -le 45 ]; do
+              if docker compose --env-file .env exec -T reverse_proxy \
+                wget -T 3 -q -O /dev/null http://api:8080/actuator/health 2>/dev/null; then
+                api_ok=true
+                break
+              fi
+              sleep 2
+              i=$((i + 1))
+            done
+            if [ "$api_ok" != "true" ]; then
+              echo "API health did not become ready (check Postgres password matches DB volume / logs)" >&2
+              docker compose --env-file .env logs --tail 120 api >&2 || true
+              exit 1
+            fi
+
             # Reload nginx in place (seconds) instead of restarting the whole container (~minute+).
             docker compose --env-file .env exec -T reverse_proxy nginx -s reload \
               || docker compose --env-file .env restart reverse_proxy
