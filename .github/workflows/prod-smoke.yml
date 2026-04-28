@@ -1,0 +1,65 @@
+name: Production smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Smoke against kailinx.com (secrets only)
+        env:
+          U: ${{ secrets.GRAFANA_ADMIN_USER }}
+          P: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          T: ${{ secrets.EVENTS_INTERNAL_TOKEN }}
+        run: |
+          set -uo pipefail
+          missing=""
+          [ -z "$U" ] && missing="$missing GRAFANA_ADMIN_USER"
+          [ -z "$P" ] && missing="$missing GRAFANA_ADMIN_PASSWORD"
+          [ -z "$T" ] && missing="$missing EVENTS_INTERNAL_TOKEN"
+          if [ -n "$missing" ]; then
+            echo "Missing secrets:$missing" >&2
+            exit 1
+          fi
+
+          fail=false
+
+          echo "--- Public ---"
+          code="$(curl -sS -o /dev/null -w '%{http_code}' https://kailinx.com/)"
+          echo "kailinx_root $code"
+          [ "$code" = "200" ] || fail=true
+
+          echo "--- Protected (nginx Basic Auth, Grafana secrets) ---"
+          code="$(curl -sS -o /dev/null -w '%{http_code}' -u "$U:$P" https://analytics.kailinx.com/)"
+          echo "analytics $code"
+          [ "$code" = "200" ] || fail=true
+
+          code="$(curl -sS -o /dev/null -w '%{http_code}' -u "$U:$P" https://grafana.kailinx.com/)"
+          echo "grafana_ui $code"
+          { [ "$code" = "200" ] || [ "$code" = "302" ]; } || fail=true
+
+          echo "--- API query (nginx basic + x-internal-token) ---"
+          code="$(curl -sS -o /dev/null -w '%{http_code}' \
+            -u "$U:$P" \
+            -H "x-internal-token: $T" \
+            'https://api.kailinx.com/v1/events/top?field=event_name&window=24h&limit=3')"
+          echo "api_events_top $code"
+          [ "$code" = "200" ] || fail=true
+
+          echo "--- Public ingest (no Basic Auth) ---"
+          code="$(curl -sS -o /tmp/ingest.json -w '%{http_code}' \
+            -X POST https://api.kailinx.com/v1/events \
+            -H 'content-type: application/json' \
+            -d '{"events":[{"eventName":"gha_smoke","happenedAt":"2026-04-28T00:00:00Z","page":"/gha","props":{"source":"workflow"}}]}')"
+          echo "ingest_http $code"
+          head -c 200 /tmp/ingest.json; echo
+          { [ "$code" = "200" ] || [ "$code" = "202" ]; } || fail=true
+
+          if [ "$fail" = "true" ]; then
+            echo "One or more checks failed" >&2
+            exit 1
+          fi
+          echo "All checks passed"
