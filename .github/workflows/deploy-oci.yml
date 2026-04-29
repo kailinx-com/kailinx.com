@@ -168,15 +168,8 @@ jobs:
               exit 1
             fi
 
-            echo "--- reverse_proxy -> api:8080 (TCP + DNS) ---"
-            docker compose --env-file .env exec -T reverse_proxy getent hosts api || echo "diag_getent_fail"
-            docker compose --env-file .env exec -T reverse_proxy sh -c 'nc -zv -w 5 api 8080' 2>&1 || echo "diag_nc_fail"
-
             # Full restart so nginx picks fresh Docker DNS for api/web upstream peers after recreate.
             docker compose --env-file .env restart reverse_proxy
-
-            echo "--- nc after nginx restart ---"
-            docker compose --env-file .env exec -T reverse_proxy sh -c 'nc -zv -w 5 api 8080' 2>&1 || echo "diag_nc_after_fail"
 
             # Prune in background so deploy does not block on GC.
             (docker image prune -f >/dev/null 2>&1 &) || true

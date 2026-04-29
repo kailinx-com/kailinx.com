@@ -55,6 +55,7 @@ services:
       context: ./apps/api
     restart: unless-stopped
     environment:
+      - JAVA_TOOL_OPTIONS=-Djava.net.preferIPv4Stack=true
       - EVENTS_DB_URL=jdbc:postgresql://postgres:5432/events
       - EVENTS_DB_USER=events
       - EVENTS_DB_PASSWORD=${POSTGRES_PASSWORD}
