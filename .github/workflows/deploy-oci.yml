@@ -168,6 +168,12 @@ jobs:
               exit 1
             fi
 
+            echo "--- api bind probe (loopback vs bridge IP inside api container) ---"
+            docker compose --env-file .env exec -T api curl -sf http://127.0.0.1:8080/actuator/health >/dev/null && echo diag_listen_loopback_ok || echo diag_listen_loopback_fail
+            BRIDGE_IP="$(docker compose --env-file .env exec -T api hostname -i | awk '{ print $1 }')"
+            echo "diag_bridge_ip=${BRIDGE_IP}"
+            docker compose --env-file .env exec -T api curl -sf "http://${BRIDGE_IP}:8080/actuator/health" >/dev/null && echo diag_listen_bridge_ok || echo diag_listen_bridge_fail
+
             # Full restart so nginx picks fresh Docker DNS for api/web upstream peers after recreate.
             docker compose --env-file .env restart reverse_proxy
 
